@@ -3,7 +3,7 @@
     Checks for necessary configurations for SharePoint environment to function over TLS 1.2
 
     .DESCRIPTION
-    This script requires no inputs and will autotically determine the appropriate configuration depending on SharePoint and Windows version. This script does not make any changes merely reports on what configurations are present regarding TLS 1.2 prepareness and whether or not the configurations are required.
+    This script requires no inputs and will autotically determine the appropriate configuration depending on SharePoint and Windows version.
 
     .OUTPUTS
     Example output:
@@ -403,8 +403,80 @@ function main
             Configured = (Invoke-Expression $check.Split(",")[0])
         }
     }
+
+    AzureFrontDoorCiphersEnabled
     
     return $results
 }
 
+
+
+function AzureFrontDoorCiphersEnabled
+{
+    Write-Host "Checking whether ciphers compatible with Azure Front Door are enabled."
+    Write-Host "These are required for hybrid functionality such as hybrid search or hybrid taxonomy."
+    
+    $keys = Get-ChildItem HKLM:\SYSTEM\CurrentControlSet\Control\Cryptography\Configuration\Local\SSL -Recurse
+    $keys += Get-ChildItem HKLM:\SOFTWARE\Policies\Microsoft\Cryptography\Configuration\SSL -Recurse -ErrorAction SilentlyContinue
+    
+    $afdCiphers = @(
+        "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+        "TLS_DHE_RSA_WITH_AES_256_GCM_SHA384",
+        "TLS_DHE_RSA_WITH_AES_128_GCM_SHA256"
+    )
+    $supportedCiphers = @()
+    $priorityThreshold = 10
+    $priorityWarning = $false
+
+    foreach($key in $keys)
+    {
+        if($key.Name.EndsWith("00010002"))
+        {
+            $cipherString = $key.GetValue("Functions")
+            if(![String]::IsNullOrEmpty($cipherString))
+            {
+                $ciphers = $cipherString.Split(",")
+                foreach($afdCipher in $afdCiphers)
+                {
+                    if($ciphers.Contains($afdCipher) -and !$supportedCiphers.Contains($afdCipher))
+                    {
+                        $supportedCiphers+=$afdCipher
+                        $idx = $ciphers.IndexOf($afdCipher)
+                        if($idx -gt $priorityThreshold-1)
+                        {
+                            $priorityWarning = $true
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if($supportedCiphers -le 0)
+    {
+        Write-Warning "No ciphers supported by Azure Front Door were found!!!"
+        Write-Host "If you are not using hybrid features or reaching out to Azure or other online hosted services you can ignore this"
+    }
+    else
+    {
+        Write-Host ("Found {0} ciphers supported by Azure Front Door" -f $supportedCiphers.Count, $afdCiphers.Count) -ForegroundColor Green
+        foreach($supportedCipher in $supportedCiphers)
+        {
+            Write-Host $supportedCipher.ToString() -ForegroundColor Green
+        }
+
+        if($priorityWarning)
+        {
+            Write-Warning "Priority of Azure Front Door compatible ciphers may be too low"
+        }
+    }
+
+    if((Get-WmiObject Win32_OperatingSystem).Version.StartsWith("6."))
+    {
+        Write-Warning "Pre windows 2016 detected, even with proper ciphers enabled there may still be intermittent issues.`nPlease refer to this article:`nhttps://docs.microsoft.com/en-us/troubleshoot/windows-server/identity/apps-forcibly-closed-tls-connection-errors"
+    }
+}
+
+
+cls
 main
