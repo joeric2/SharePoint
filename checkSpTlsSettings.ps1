@@ -408,6 +408,10 @@ function main
     
     Write-Host "`n`n`nTLS 1.2 Configurations:"
     $results | Format-Table -AutoSize -Property Required, Configured, Name -Wrap
+    if(!!($results | Where-Object{![bool]::Parse($_.Configured) -and [bool]::Parse($_.Required)}))
+    {
+        Write-Warning "Required configurations have not been made, please refer to table above!"
+    }
     #return $results
 }
 
