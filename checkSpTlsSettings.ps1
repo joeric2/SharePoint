@@ -407,7 +407,7 @@ function main
     AzureFrontDoorCiphersEnabled
     
     Write-Host "`n`n`nTLS 1.2 Configurations:"
-    $results | Format-Table -AutoSize  
+    $results | Format-Table -AutoSize -Property Required, Configured, Name -Wrap
     #return $results
 }
 
