@@ -3,7 +3,7 @@
     Checks for necessary configurations for SharePoint environment to function over TLS 1.2
 
     .DESCRIPTION
-    This script requires no inputs and will autotically determine the appropriate configuration depending on SharePoint and Windows version.
+    This script requires no inputs and will autotically determine the appropriate configuration depending on SharePoint and Windows version. This script does not make any changes merely reports on what configurations are present regarding TLS 1.2 prepareness and whether or not the configurations are required.
 
     .OUTPUTS
     Example output:
