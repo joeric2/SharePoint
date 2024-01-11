@@ -1,12 +1,3 @@
-﻿# Title: Remove-DuplicateAuthorizedTypeEntryFromWebConfig.ps1
-# License: This PowerShell script is provided as-is with no warranty expressed or implied.  Use at your own risk.
-# Usage: Run as-is to detect the problem in each web application without making any changes
-# Example: ./Remove-DuplicateAuthorizedTypeEntryFromWebConfig.ps1
-# Change $detectOnly to $false to have it do the cleanup.  
-# Keep in mind that each applicaiton pool will recycle due to the web.config change.
-# Note that this script makes every attempt to backup existing web.config files before making changes, however we
-# encourage you to maintain a backup of IIS settings and web.config files prior to executing this script. 
-
 <#
  This Sample Code is provided for the purpose of illustration only and is not intended to be used in a production environment.  
  THIS SAMPLE CODE AND ANY RELATED INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, 
