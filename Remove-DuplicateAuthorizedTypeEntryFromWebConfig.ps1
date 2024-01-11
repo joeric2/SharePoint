@@ -7,6 +7,38 @@
 # Note that this script makes every attempt to backup existing web.config files before making changes, however we
 # encourage you to maintain a backup of IIS settings and web.config files prior to executing this script. 
 
+<#
+ This Sample Code is provided for the purpose of illustration only and is not intended to be used in a production environment.  
+ THIS SAMPLE CODE AND ANY RELATED INFORMATION ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, 
+ INCLUDING BUT NOT LIMITED TO THE IMPLIED WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.  
+ We grant you a nonexclusive, royalty-free right to use and modify the sample code and to reproduce and distribute the object 
+ code form of the Sample Code, provided that you agree: 
+    (i)   to not use our name, logo, or trademarks to market your software product in which the sample code is embedded; 
+    (ii)  to include a valid copyright notice on your software product in which the sample code is embedded; and 
+    (iii) to indemnify, hold harmless, and defend us and our suppliers from and against any claims or lawsuits, including 
+          attorneys' fees, that arise or result from the use or distribution of the sample code.
+ Please note: None of the conditions outlined in the disclaimer above will supercede the terms and conditions contained within 
+              the Premier Customer Services Description.
+
+  REFERENCE:
+
+   https://blog.stefan-gossner.com/2024/01/11/trending-issue-http-error-500-19-cannot-read-configuration-file-because-it-exceeds-the-maximum-file-size/
+
+  SUMMARY: 
+    
+   This script reads all web.config files related to SharePoint web applications and looks for duplication of authorizedType entries
+   as they relate to SharePoint workflows. It has been observed that excessive duplication of this section is occurring in some
+   environments leading to the creation of this script. This will detect any and all duplicates within this section and remove them.
+   Because this script potentially updates web.config files it will cause the application pools to recycle causing a brief outage. 
+   Also this script will attempt to make a backup of web.config files prior comitting any changes. While this functionlity is built
+   into this script we encourage you to ensure recent backups are avialable prior to making changes such as this.
+
+   The script executes only on the LOCAL SERVER, if you have a multi server farm this script will need to be run on all servers.
+
+   Additionally this script runs as detect only by default, to execute changes you can either specify [-DetectOnly $false] from command
+   line or respond to the prompt displayed in the UI.
+#>
+
 [CmdletBinding()]
 param (
     [bool]$detectOnly = $true
