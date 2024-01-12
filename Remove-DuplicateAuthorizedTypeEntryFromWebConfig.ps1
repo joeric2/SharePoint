@@ -75,12 +75,6 @@ function Remove-DuplicateAuthorizedTypeEntryFromWebConfig
 
                 Write-Host "`r`nProcessing web.config for $($zone) zone of web application `"$($WebApplication.DisplayName)`""
 
-                #backup existing web.config
-                if(!$detectOnly)
-                {
-
-                }
-
                 [xml]$x = Get-Content $webConfigPath
                 $authorizedTypes = $x.configuration.'System.Workflow.ComponentModel.WorkflowCompiler'.authorizedTypes.targetFx.ChildNodes
 
