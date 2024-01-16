@@ -88,11 +88,7 @@ function Remove-DuplicateAuthorizedTypeEntryFromWebConfig
                     $existingAuthorizedType = $simplifiedAuthorizedTypes | ?{$_.Assembly -eq $authorizedType.Assembly `
                         -and $_.NameSpace -eq $authorizedType.Namespace `
                         -and $_.TypeName -eq $authorizedType.TypeName `
-                        -and $_.Authorized -eq $authorizedType.Authorized `
-                        -and ![string]::IsNullOrEmpty($_.Assembly) `
-                        -and ![string]::IsNullOrEmpty($_.NameSpace) `
-                        -and ![string]::IsNullOrEmpty($_.TypeName) `
-                        -and ![string]::IsNullOrEmpty($_.Authorized) `
+                        -and $_.Authorized -eq $authorizedType.Authorized
                     }
                     if($null -eq $existingAuthorizedType)
                     {
@@ -112,7 +108,14 @@ function Remove-DuplicateAuthorizedTypeEntryFromWebConfig
                     $simplifiedXml = $null
                     foreach($simplifiedType in $simplifiedAuthorizedTypes)
                     {
-                        $simplifiedXml += ("`r`n        <authorizedType Assembly=`"{0}`" Namespace=`"{1}`" TypeName=`"{2}`" Authorized=`"{3}`" />" -f $simplifiedType.Assembly, $simplifiedType.Namespace, $simplifiedType.TypeName, $simplifiedType.Authorized)
+                        if(![string]::IsNullOrEmpty($simplifiedType.Assembly) `
+                            -and ![string]::IsNullOrEmpty($simplifiedType.NameSpace) `
+                            -and ![string]::IsNullOrEmpty($simplifiedType.TypeName) `
+                            -and ![string]::IsNullOrEmpty($simplifiedType.Authorized)
+                        )
+                        {
+                            $simplifiedXml += ("`r`n        <authorizedType Assembly=`"{0}`" Namespace=`"{1}`" TypeName=`"{2}`" Authorized=`"{3}`" />" -f $simplifiedType.Assembly, $simplifiedType.Namespace, $simplifiedType.TypeName, $simplifiedType.Authorized)
+                        }
                     }
                     $simplifiedXml += "`r`n"
                     $originalLength = $x.InnerXml.Length
